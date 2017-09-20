@@ -19,6 +19,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -33,7 +34,7 @@ namespace SonarQube.Plugins.Common
     {
         private const string DllExtension = ".dll";
 
-        private readonly string[] rootSearchPaths;
+        private readonly List<string> rootSearchPaths = new List<string>();
         private readonly ILogger logger;
 
         public bool ResolverCalled { get; private set; } // for testing
@@ -54,7 +55,8 @@ namespace SonarQube.Plugins.Common
             }
             this.ResolverCalled = true;
 
-            this.rootSearchPaths = rootSearchPaths;
+            this.rootSearchPaths.AddRange(rootSearchPaths);
+            this.rootSearchPaths.Add(GetAssemblyDirectory(Assembly.GetExecutingAssembly()));
             this.logger = logger;
 
             // This line required to resolve the Resources object before additional assembly resolution is added
@@ -82,6 +84,7 @@ namespace SonarQube.Plugins.Common
                 foreach (string file in Directory.GetFiles(rootSearchPath, fileName, SearchOption.AllDirectories))
                 {
                     asm = Assembly.LoadFile(file);
+                    var assemblyName = new AssemblyName(args.Name);
 
                     if (
                         // If the input was e.g foo.dll then compare against the file name...
@@ -89,6 +92,8 @@ namespace SonarQube.Plugins.Common
                         ||
                         // ... otherwise compare against the full name
                         (!isFileName && string.Equals(args.Name, asm.FullName, StringComparison.OrdinalIgnoreCase))
+                        ||
+                        (!isFileName && (assemblyName.Version < asm.GetName().Version))
                         )
                     {
                         this.logger.LogDebug(Resources.Resolver_AssemblyLocated, file);
@@ -121,6 +126,20 @@ namespace SonarQube.Plugins.Common
 
             AssemblyName assemblyName = new AssemblyName(input);
             return assemblyName.Name + DllExtension;
+        }
+
+        /// <summary>
+        /// Determins the folder where the specified <paramref name="assembly"/> is located and returns it.
+        /// </summary>
+        /// <returns>
+        /// The folder where the specified <paramref name="assembly"/> is located.
+        /// </returns>
+        private static string GetAssemblyDirectory(Assembly assembly)
+        {
+          string codeBase = assembly.CodeBase;
+          UriBuilder uri = new UriBuilder(codeBase);
+          string path = Uri.UnescapeDataString(uri.Path);
+          return Path.GetDirectoryName(path);
         }
 
         #region IDisposable Support
