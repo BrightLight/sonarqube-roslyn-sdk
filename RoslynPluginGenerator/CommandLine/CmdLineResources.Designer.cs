@@ -19,7 +19,7 @@ namespace SonarQube.Plugins.Roslyn.CommandLine {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class CmdLineResources {
@@ -75,6 +75,15 @@ namespace SonarQube.Plugins.Roslyn.CommandLine {
         internal static string ArgDescription_AnalzyerRef {
             get {
                 return ResourceManager.GetString("ArgDescription_AnalzyerRef", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /output:[Plugin Output Dir] or /o:[Plugin Output Dir].
+        /// </summary>
+        internal static string ArgDescription_OutputDir {
+            get {
+                return ResourceManager.GetString("ArgDescription_OutputDir", resourceCulture);
             }
         }
         
